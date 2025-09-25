@@ -13,7 +13,7 @@ ENV \
 RUN \
   yum update -y && \
   amazon-linux-extras install epel -y && \
-  yum install -y --setopt=tsflags=nodocs \
+  yum install -y --setopt=tsflags=nodocs --skip-broken \
     --exclude=gcc \
     autoconf \
     automake \
@@ -35,6 +35,7 @@ RUN \
     python3 \
     tar \
     xz \
+    libtool \
     && \
   ln -s /usr/bin/gcc10-gcc /usr/bin/cc && \
   ln -s /usr/bin/gcc10-g++ /usr/bin/c++ && \
