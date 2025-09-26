@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 # Dependency version numbers
 source ./versions.properties
@@ -92,7 +92,8 @@ done
 for flavour in linux-x64 linuxmusl-x64 linux-armv6 linux-arm64v8 linuxmusl-arm64v8 linux-ppc64le linux-riscv64 linux-s390x; do
   if [ $PLATFORM = "all" ] || [ $PLATFORM = $flavour ]; then
     echo "Building $flavour..."
-    docker build --pull -t vips-dev-$flavour platforms/$flavour
-    docker run --rm -v $PWD:/packaging vips-dev-$flavour sh -c "/packaging/build/posix.sh"
+    # docker build --platform=linux/amd64 -t woss/vips-dev-$flavour platforms/$flavour
+    docker build -t woss/vips-dev-$flavour platforms/$flavour
+    docker run --rm -v $PWD:/packaging woss/vips-dev-$flavour sh -c "/packaging/build/posix.sh"
   fi
 done

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 # Dependency version numbers
 if [ -f /packaging/versions.properties ]; then
@@ -124,6 +124,13 @@ if [ "${PLATFORM%-*}" == "linuxmusl" ] || [ "$DARWIN" = true ]; then
   meson install -C _build --tag devel
 fi
 
+mkdir ${DEPS}/libtool
+$CURL https://mirrors.dotsrc.org/gnu/libtool/libtool-${VERSION_LIBTOOL}.tar.gz | tar xzC ${DEPS}/libtool --strip-components=1
+cd ${DEPS}/libtool
+./configure --host=${CHOST} --prefix=${TARGET} --enable-static --disable-shared --disable-dependency-tracking
+make
+make install
+
 mkdir ${DEPS}/zlib-ng
 $CURL https://github.com/zlib-ng/zlib-ng/archive/${VERSION_ZLIB_NG}.tar.gz | tar xzC ${DEPS}/zlib-ng --strip-components=1
 cd ${DEPS}/zlib-ng
@@ -189,17 +196,17 @@ make install/strip
 mkdir ${DEPS}/libde265
 $CURL https://github.com/strukturag/libde265/archive/v${VERSION_LIBDE265}.tar.gz | tar xzC ${DEPS}/libde265 --strip-components=1
 cd ${DEPS}/libde265
-./autogen.sh || true
+./autogen.sh 
 ./configure --host=${CHOST} --prefix=${TARGET} --enable-static --disable-shared --disable-dependency-tracking --disable-dec265 --disable-sherlock265
 make install-strip
 
-# mkdir ${DEPS}/x265
-# $CURL https://github.com/videolan/x265/archive/${VERSION_X265}.tar.gz | tar xzC ${DEPS}/x265 --strip-components=1
-# cd ${DEPS}/x265/build/linux
-# cmake -G"Unix Makefiles" \
-#   -DCMAKE_TOOLCHAIN_FILE=${ROOT}/Toolchain.cmake -DCMAKE_INSTALL_PREFIX=${TARGET} -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release \
-#   -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DENABLE_PIC=ON -DENABLE_TESTS=OFF -DENABLE_HDR10_PLUS=OFF -DENABLE_LIBNUMA=OFF -DENABLE_CUDA=OFF -DENABLE_OPENCL=OFF -DENABLE_ASSEMBLY=ON ..
-# make install/strip
+mkdir ${DEPS}/x265
+$CURL https://github.com/videolan/x265/archive/${VERSION_X265}.tar.gz | tar xzC ${DEPS}/x265 --strip-components=1
+cd ${DEPS}/x265/build/linux
+cmake -G"Unix Makefiles" \
+  -DCMAKE_TOOLCHAIN_FILE=${ROOT}/Toolchain.cmake -DCMAKE_INSTALL_PREFIX=${TARGET} -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release \
+  -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DENABLE_PIC=ON -DENABLE_TESTS=OFF -DENABLE_HDR10_PLUS=OFF -DENABLE_LIBNUMA=OFF -DENABLE_CUDA=OFF -DENABLE_OPENCL=OFF -DENABLE_ASSEMBLY=ON ..
+make install/strip
 
 mkdir ${DEPS}/heif
 $CURL https://github.com/strukturag/libheif/releases/download/v${VERSION_HEIF}/libheif-${VERSION_HEIF}.tar.gz | tar xzC ${DEPS}/heif --strip-components=1
