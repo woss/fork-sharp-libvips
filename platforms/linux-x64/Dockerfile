@@ -35,6 +35,7 @@ RUN \
     python3 \
     tar \
     xz \
+    m4 \
     && \
   ln -s /usr/bin/gcc10-gcc /usr/bin/cc && \
   ln -s /usr/bin/gcc10-g++ /usr/bin/c++ && \
